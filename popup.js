@@ -94,31 +94,77 @@ function handleFileUpload(event) {
   }
 }
 
-// Screenshot Handler
+// Screenshot Handler - Drag to select
 async function takeScreenshot() {
   try {
     screenshotBtn.disabled = true;
-    screenshotBtn.querySelector('.btn-text').textContent = 'Capturing...';
+    screenshotBtn.querySelector('.btn-text').textContent = 'Selecting...';
 
     // Get current tab
     const [tab] = await chrome.tabs.query({ active: true, currentWindow: true });
     
-    // Capture visible tab
-    const dataUrl = await chrome.tabs.captureVisibleTab(null, {
-      format: 'png',
-      quality: 100
+    if (!tab) {
+      throw new Error('No active tab found');
+    }
+
+    // Inject content script if needed and start screenshot mode
+    try {
+      await chrome.scripting.executeScript({
+        target: { tabId: tab.id },
+        files: ['content.js']
+      });
+    } catch (e) {
+      // Script might already be injected, that's okay
+      console.log('Script injection note:', e.message);
+    }
+
+    // Send message to start screenshot selection
+    chrome.tabs.sendMessage(tab.id, { action: 'startScreenshot' }, (response) => {
+      if (chrome.runtime.lastError) {
+        console.error('Error starting screenshot:', chrome.runtime.lastError);
+        alert('Failed to start screenshot. Please refresh the page and try again.');
+        screenshotBtn.querySelector('.btn-text').textContent = 'Take Screenshot';
+        screenshotBtn.disabled = false;
+        return;
+      }
+      
+      // Close popup so user can see the page
+      window.close();
     });
 
-    loadImage(dataUrl);
-    screenshotBtn.querySelector('.btn-text').textContent = 'Take Screenshot';
   } catch (error) {
     console.error('Error taking screenshot:', error);
     alert('Failed to take screenshot. Please try again.');
     screenshotBtn.querySelector('.btn-text').textContent = 'Take Screenshot';
-  } finally {
     screenshotBtn.disabled = false;
   }
 }
+
+// Listen for screenshot results
+chrome.runtime.onMessage.addListener((request, sender, sendResponse) => {
+  if (request.action === 'screenshotCaptured') {
+    loadImage(request.imageData);
+    screenshotBtn.querySelector('.btn-text').textContent = 'Take Screenshot';
+    screenshotBtn.disabled = false;
+  } else if (request.action === 'screenshotError') {
+    alert('Screenshot error: ' + request.error);
+    screenshotBtn.querySelector('.btn-text').textContent = 'Take Screenshot';
+    screenshotBtn.disabled = false;
+  } else if (request.action === 'cancelScreenshot') {
+    screenshotBtn.querySelector('.btn-text').textContent = 'Take Screenshot';
+    screenshotBtn.disabled = false;
+  }
+});
+
+// Check for pending screenshot when popup opens
+chrome.storage.local.get(['pendingScreenshot'], (result) => {
+  if (result.pendingScreenshot) {
+    loadImage(result.pendingScreenshot);
+    chrome.storage.local.remove(['pendingScreenshot']);
+    screenshotBtn.querySelector('.btn-text').textContent = 'Take Screenshot';
+    screenshotBtn.disabled = false;
+  }
+});
 
 // Load Image
 function loadImage(imageSrc) {
@@ -182,7 +228,13 @@ function loadImage(imageSrc) {
 // Toggle Edit Panel
 function toggleEditPanel() {
   isEditing = !isEditing;
-  editPanel.style.display = isEditing ? 'block' : 'none';
+  if (isEditing) {
+    editPanel.style.display = 'block';
+    editPanel.classList.add('active');
+  } else {
+    editPanel.style.display = 'none';
+    editPanel.classList.remove('active');
+  }
   editBtn.querySelector('.btn-text').textContent = isEditing ? 'Close Edit' : 'Edit Image';
 }
 
