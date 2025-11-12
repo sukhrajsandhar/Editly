@@ -8,84 +8,310 @@
   <link rel="stylesheet" href="popup.css">
 </head>
 <body>
-  <div class="container">
+  <!-- Main Page -->
+  <div class="page active" id="mainPage">
     <header class="header">
-      <h1 class="title">Editly</h1>
-      <button class="theme-toggle" id="themeToggle" aria-label="Toggle dark mode">
+      <div class="logo">
+        <i class="fas fa-magic"></i>
+        <h1 class="title">Editly</h1>
+      </div>
+      <button class="theme-toggle" id="themeToggle" aria-label="Toggle theme">
         <i class="fas fa-moon theme-icon" id="themeIcon"></i>
       </button>
     </header>
 
-    <div class="preview-section">
-      <div class="preview-container" id="previewContainer">
-        <div class="preview-placeholder">
-          <svg class="placeholder-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor">
-            <rect x="3" y="3" width="18" height="18" rx="2" ry="2" stroke-width="2"/>
-            <circle cx="8.5" cy="8.5" r="1.5" stroke-width="2"/>
-            <polyline points="21 15 16 10 5 21" stroke-width="2"/>
-          </svg>
-          <p class="placeholder-text">No image selected</p>
+    <div class="features-grid">
+      <div class="feature-card" data-page="backgroundRemover">
+        <div class="feature-icon">
+          <i class="fas fa-cut"></i>
         </div>
-        <canvas id="imageCanvas" class="image-canvas"></canvas>
-        <img id="previewImage" class="preview-image" alt="Preview">
+        <h3 class="feature-title">Remove Background</h3>
+        <p class="feature-desc">AI-powered background removal</p>
+      </div>
+
+      <div class="feature-card" data-page="editPhoto">
+        <div class="feature-icon">
+          <i class="fas fa-sliders-h"></i>
+        </div>
+        <h3 class="feature-title">Edit Photo</h3>
+        <p class="feature-desc">Adjust filters and effects</p>
+      </div>
+
+      <div class="feature-card" data-page="screenshot">
+        <div class="feature-icon">
+          <i class="fas fa-camera"></i>
+        </div>
+        <h3 class="feature-title">Take Screenshot</h3>
+        <p class="feature-desc">Capture and edit screenshots</p>
+      </div>
+
+      <div class="feature-card" data-page="fileConversions">
+        <div class="feature-icon">
+          <i class="fas fa-exchange-alt"></i>
+        </div>
+        <h3 class="feature-title">File Conversions</h3>
+        <p class="feature-desc">Convert between file formats</p>
       </div>
     </div>
+  </div>
 
-    <div class="controls-section">
-      <div class="button-group">
-        <button class="btn btn-primary" id="uploadBtn">
-          <i class="fas fa-upload btn-icon"></i>
-          <span class="btn-text">Upload Image</span>
-        </button>
-        <input type="file" id="fileInput" accept="image/*" style="display: none;">
-        
-        <button class="btn btn-primary" id="screenshotBtn">
-          <i class="fas fa-camera btn-icon"></i>
-          <span class="btn-text">Take Screenshot</span>
-        </button>
+  <!-- Background Remover Page -->
+  <div class="page" id="backgroundRemoverPage">
+    <header class="subpage-header">
+      <button class="back-btn" data-back="main">
+        <i class="fas fa-arrow-left"></i>
+      </button>
+      <h2 class="subpage-title">Remove Background</h2>
+      <div class="header-spacer"></div>
+    </header>
+
+    <div class="subpage-content">
+      <div class="upload-area" id="bgUploadArea">
+        <input type="file" id="bgFileInput" accept="image/*" style="display: none;">
+        <div class="upload-placeholder">
+          <i class="fas fa-cloud-upload-alt upload-icon"></i>
+          <h3>Drop your image here</h3>
+          <p>or click to browse</p>
+          <button class="upload-btn-primary" id="bgUploadBtn">Choose File</button>
+        </div>
+        <div class="upload-preview" id="bgPreview" style="display: none;">
+          <img id="bgPreviewImage" alt="Preview">
+          <div class="upload-overlay">
+            <button class="btn-icon-action" id="bgRemoveBtn">
+              <i class="fas fa-cut"></i>
+            </button>
+            <button class="btn-icon-action" id="bgDownloadBtn">
+              <i class="fas fa-download"></i>
+            </button>
+          </div>
+        </div>
       </div>
 
-      <div class="button-group">
-        <button class="btn btn-secondary" id="editBtn" disabled>
-          <i class="fas fa-edit btn-icon"></i>
-          <span class="btn-text">Edit Image</span>
-        </button>
-        <button class="btn btn-secondary" id="saveBtn" disabled>
-          <i class="fas fa-save btn-icon"></i>
-          <span class="btn-text">Save</span>
-        </button>
+      <div class="progress-container" id="bgProgress" style="display: none;">
+        <div class="progress-bar">
+          <div class="progress-fill" id="bgProgressFill"></div>
+        </div>
+        <p class="progress-text">Processing...</p>
+      </div>
+
+      <div class="result-container" id="bgResult" style="display: none;">
+        <div class="result-preview">
+          <img id="bgResultImage" alt="Result">
+        </div>
+        <div class="result-actions">
+          <button class="btn-primary" id="bgDownloadResultBtn">
+            <i class="fas fa-download"></i>
+            Download
+          </button>
+          <button class="btn-secondary" id="bgTryAgainBtn">
+            <i class="fas fa-redo"></i>
+            Try Another
+          </button>
+        </div>
       </div>
     </div>
+  </div>
 
-    <div class="edit-panel" id="editPanel">
-      <h3 class="edit-title">Edit Options</h3>
-      <div class="edit-controls">
-        <div class="control-item">
-          <label for="brightness">Brightness</label>
-          <input type="range" id="brightness" min="0" max="200" value="100">
-          <span class="value-display" id="brightnessValue">100%</span>
-        </div>
-        <div class="control-item">
-          <label for="contrast">Contrast</label>
-          <input type="range" id="contrast" min="0" max="200" value="100">
-          <span class="value-display" id="contrastValue">100%</span>
-        </div>
-        <div class="control-item">
-          <label for="saturation">Saturation</label>
-          <input type="range" id="saturation" min="0" max="200" value="100">
-          <span class="value-display" id="saturationValue">100%</span>
-        </div>
-        <div class="control-item">
-          <label for="blur">Blur</label>
-          <input type="range" id="blur" min="0" max="10" value="0" step="0.1">
-          <span class="value-display" id="blurValue">0px</span>
+  <!-- Edit Photo Page -->
+  <div class="page" id="editPhotoPage">
+    <header class="subpage-header">
+      <button class="back-btn" data-back="main">
+        <i class="fas fa-arrow-left"></i>
+      </button>
+      <h2 class="subpage-title">Edit Photo</h2>
+      <div class="header-spacer"></div>
+    </header>
+
+    <div class="subpage-content">
+      <div class="preview-section">
+        <div class="preview-container" id="editPreviewContainer">
+          <div class="preview-placeholder">
+            <i class="fas fa-image placeholder-icon"></i>
+            <p class="placeholder-text">No image selected</p>
+          </div>
+          <canvas id="editImageCanvas" class="image-canvas"></canvas>
+          <img id="editPreviewImage" class="preview-image" alt="Preview">
         </div>
       </div>
-      <button class="btn btn-reset" id="resetBtn">Reset Filters</button>
+
+      <div class="upload-section">
+        <input type="file" id="editFileInput" accept="image/*" style="display: none;">
+        <button class="btn-primary" id="editUploadBtn">
+          <i class="fas fa-upload"></i>
+          Upload Image
+        </button>
+      </div>
+
+      <div class="edit-controls-panel" id="editControlsPanel" style="display: none;">
+        <div class="control-item">
+          <div class="control-header">
+            <label for="editBrightness">Brightness</label>
+            <span class="value-display" id="editBrightnessValue">100%</span>
+          </div>
+          <input type="range" id="editBrightness" min="0" max="200" value="100" class="slider">
+        </div>
+
+        <div class="control-item">
+          <div class="control-header">
+            <label for="editContrast">Contrast</label>
+            <span class="value-display" id="editContrastValue">100%</span>
+          </div>
+          <input type="range" id="editContrast" min="0" max="200" value="100" class="slider">
+        </div>
+
+        <div class="control-item">
+          <div class="control-header">
+            <label for="editSaturation">Saturation</label>
+            <span class="value-display" id="editSaturationValue">100%</span>
+          </div>
+          <input type="range" id="editSaturation" min="0" max="200" value="100" class="slider">
+        </div>
+
+        <div class="control-item">
+          <div class="control-header">
+            <label for="editBlur">Blur</label>
+            <span class="value-display" id="editBlurValue">0px</span>
+          </div>
+          <input type="range" id="editBlur" min="0" max="10" value="0" step="0.1" class="slider">
+        </div>
+
+        <div class="control-actions">
+          <button class="btn-secondary" id="editResetBtn">Reset Filters</button>
+          <button class="btn-primary" id="editSaveBtn">
+            <i class="fas fa-save"></i>
+            Save Image
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Screenshot Page -->
+  <div class="page" id="screenshotPage">
+    <header class="subpage-header">
+      <button class="back-btn" data-back="main">
+        <i class="fas fa-arrow-left"></i>
+      </button>
+      <h2 class="subpage-title">Take Screenshot</h2>
+      <div class="header-spacer"></div>
+    </header>
+
+    <div class="subpage-content">
+      <div class="screenshot-info">
+        <i class="fas fa-info-circle"></i>
+        <p>Click the button below to capture a screenshot. You'll be able to drag and select the area you want to capture.</p>
+      </div>
+      <button class="btn-primary btn-large" id="screenshotStartBtn">
+        <i class="fas fa-camera"></i>
+        Start Screenshot
+      </button>
+    </div>
+  </div>
+
+  <!-- File Conversions Page -->
+  <div class="page" id="fileConversionsPage">
+    <header class="subpage-header">
+      <button class="back-btn" data-back="main">
+        <i class="fas fa-arrow-left"></i>
+      </button>
+      <h2 class="subpage-title">File Conversions</h2>
+      <div class="header-spacer"></div>
+    </header>
+
+    <div class="subpage-content">
+      <div class="conversion-selector">
+        <div class="conversion-row">
+          <label class="conversion-label">From</label>
+          <select class="conversion-select" id="fromFormat">
+            <option value="">Select format...</option>
+            <option value="pdf">PDF</option>
+            <option value="jpg">JPG</option>
+            <option value="png">PNG</option>
+            <option value="gif">GIF</option>
+            <option value="webp">WebP</option>
+            <option value="svg">SVG</option>
+            <option value="bmp">BMP</option>
+            <option value="ico">ICO</option>
+            <option value="tiff">TIFF</option>
+            <option value="heic">HEIC</option>
+            <option value="docx">DOCX</option>
+            <option value="doc">DOC</option>
+            <option value="txt">TXT</option>
+            <option value="rtf">RTF</option>
+          </select>
+        </div>
+
+        <div class="conversion-arrow">
+          <i class="fas fa-arrow-right"></i>
+        </div>
+
+        <div class="conversion-row">
+          <label class="conversion-label">To</label>
+          <select class="conversion-select" id="toFormat">
+            <option value="">Select format...</option>
+            <option value="pdf">PDF</option>
+            <option value="jpg">JPG</option>
+            <option value="png">PNG</option>
+            <option value="gif">GIF</option>
+            <option value="webp">WebP</option>
+            <option value="svg">SVG</option>
+            <option value="bmp">BMP</option>
+            <option value="ico">ICO</option>
+            <option value="tiff">TIFF</option>
+            <option value="heic">HEIC</option>
+            <option value="docx">DOCX</option>
+            <option value="doc">DOC</option>
+            <option value="txt">TXT</option>
+            <option value="rtf">RTF</option>
+          </select>
+        </div>
+      </div>
+
+      <div class="upload-area" id="conversionUploadArea">
+        <input type="file" id="conversionFileInput" style="display: none;">
+        <div class="upload-placeholder">
+          <i class="fas fa-cloud-upload-alt upload-icon"></i>
+          <h3>Drop your file here</h3>
+          <p>or click to browse</p>
+          <button class="upload-btn-primary" id="conversionUploadBtn">Choose File</button>
+        </div>
+        <div class="upload-preview" id="conversionPreview" style="display: none;">
+          <div class="file-info">
+            <i class="fas fa-file" id="conversionFileIcon"></i>
+            <div class="file-details">
+              <p class="file-name" id="conversionFileName"></p>
+              <p class="file-size" id="conversionFileSize"></p>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="progress-container" id="conversionProgress" style="display: none;">
+        <div class="progress-bar">
+          <div class="progress-fill" id="conversionProgressFill"></div>
+        </div>
+        <p class="progress-text">Converting...</p>
+      </div>
+
+      <div class="result-container" id="conversionResult" style="display: none;">
+        <div class="result-info">
+          <i class="fas fa-check-circle success-icon"></i>
+          <p>File converted successfully!</p>
+        </div>
+        <div class="result-actions">
+          <button class="btn-primary" id="conversionDownloadBtn">
+            <i class="fas fa-download"></i>
+            Download
+          </button>
+          <button class="btn-secondary" id="conversionTryAgainBtn">
+            <i class="fas fa-redo"></i>
+            Convert Another
+          </button>
+        </div>
+      </div>
     </div>
   </div>
 
   <script src="popup.js"></script>
 </body>
 </html>
-
