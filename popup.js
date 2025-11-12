@@ -150,12 +150,17 @@ function loadImage(imageSrc) {
     
     ctx.drawImage(currentImage, 0, 0, width, height);
     
-    // Store original for reset
+    // Store original for reset - create a new image and wait for it to load
     originalImage = new Image();
+    originalImage.crossOrigin = 'anonymous';
+    originalImage.onload = () => {
+      // Original image loaded, ready for filters
+    };
     originalImage.src = imageSrc;
     
     // Show canvas
     previewImage.style.display = 'none';
+    imageCanvas.style.display = 'block';
     imageCanvas.classList.add('active');
     
     // Enable buttons
@@ -164,6 +169,11 @@ function loadImage(imageSrc) {
     
     // Reset filters
     resetFilters();
+  };
+  
+  currentImage.onerror = () => {
+    console.error('Failed to load image');
+    alert('Failed to load image. Please try again.');
   };
   
   currentImage.src = imageSrc;
@@ -192,9 +202,10 @@ function applyFilters() {
   saturationValue.textContent = `${saturation}%`;
   blurValue.textContent = `${blur}px`;
 
-  // Clear and redraw
+  // Clear and redraw - use originalImage if available, otherwise use currentImage
   ctx.clearRect(0, 0, imageCanvas.width, imageCanvas.height);
-  ctx.drawImage(originalImage, 0, 0, imageCanvas.width, imageCanvas.height);
+  const imageToDraw = (originalImage && originalImage.complete) ? originalImage : currentImage;
+  ctx.drawImage(imageToDraw, 0, 0, imageCanvas.width, imageCanvas.height);
 
   // Get image data
   const imageData = ctx.getImageData(0, 0, imageCanvas.width, imageCanvas.height);
@@ -246,7 +257,9 @@ function resetFilters() {
   if (currentImage && imageCanvas.classList.contains('active')) {
     const ctx = imageCanvas.getContext('2d');
     ctx.clearRect(0, 0, imageCanvas.width, imageCanvas.height);
-    ctx.drawImage(originalImage, 0, 0, imageCanvas.width, imageCanvas.height);
+    // Use originalImage if available, otherwise use currentImage
+    const imageToDraw = (originalImage && originalImage.complete) ? originalImage : currentImage;
+    ctx.drawImage(imageToDraw, 0, 0, imageCanvas.width, imageCanvas.height);
     imageCanvas.style.filter = 'none';
   }
 }
