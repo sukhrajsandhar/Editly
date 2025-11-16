@@ -115,8 +115,8 @@ function handleBgFile(file) {
   reader.onload = (e) => {
     bgCurrentImage = e.target.result;
     bgPreviewImage.src = bgCurrentImage;
-    bgUploadArea.querySelector('.upload-placeholder').style.display = 'none';
-    bgPreview.style.display = 'block';
+    bgUploadArea.querySelector('.upload-placeholder').classList.add('hidden');
+    bgPreview.classList.remove('hidden');
   };
   reader.readAsDataURL(file);
 }
@@ -125,8 +125,8 @@ function handleBgFile(file) {
 bgRemoveBtn.addEventListener('click', () => {
   if (!bgCurrentImage) return;
   
-  bgPreview.style.display = 'none';
-  bgProgress.style.display = 'block';
+  bgPreview.classList.add('hidden');
+  bgProgress.classList.remove('hidden');
   
   // Simulate processing
   let progress = 0;
@@ -137,8 +137,8 @@ bgRemoveBtn.addEventListener('click', () => {
     if (progress >= 100) {
       clearInterval(interval);
       setTimeout(() => {
-        bgProgress.style.display = 'none';
-        bgResult.style.display = 'block';
+        bgProgress.classList.add('hidden');
+        bgResult.classList.remove('hidden');
         // In production, this would be the processed image
         bgResultImage.src = bgCurrentImage;
       }, 500);
@@ -157,9 +157,9 @@ bgDownloadResultBtn.addEventListener('click', () => {
 
 // Try again
 bgTryAgainBtn.addEventListener('click', () => {
-  bgResult.style.display = 'none';
-  bgPreview.style.display = 'none';
-  bgUploadArea.querySelector('.upload-placeholder').style.display = 'flex';
+  bgResult.classList.add('hidden');
+  bgPreview.classList.add('hidden');
+  bgUploadArea.querySelector('.upload-placeholder').classList.remove('hidden');
   bgCurrentImage = null;
   bgFileInput.value = '';
 });
@@ -208,9 +208,9 @@ function loadEditImage(imageSrc) {
   
   editCurrentImage.onload = () => {
     const placeholder = editPreviewContainer.querySelector('.preview-placeholder');
-    if (placeholder) placeholder.style.display = 'none';
+    if (placeholder) placeholder.classList.add('hidden');
 
-    const ctx = editImageCanvas.getContext('2d');
+    const ctx = editImageCanvas.getContext('2d', { willReadFrequently: true });
     const maxWidth = 360;
     const maxHeight = 400;
     
@@ -233,11 +233,11 @@ function loadEditImage(imageSrc) {
     editOriginalImage.onload = () => {};
     editOriginalImage.src = imageSrc;
     
-    editPreviewImage.style.display = 'none';
-    editImageCanvas.style.display = 'block';
+    editPreviewImage.classList.add('hidden');
+    editImageCanvas.classList.remove('hidden');
     editImageCanvas.classList.add('active');
     
-    editControlsPanel.style.display = 'block';
+    editControlsPanel.classList.remove('hidden');
     resetEditFilters();
   };
   
@@ -257,7 +257,7 @@ editBlur.addEventListener('input', applyEditFilters);
 function applyEditFilters() {
   if (!editCurrentImage || !editImageCanvas.classList.contains('active')) return;
 
-  const ctx = editImageCanvas.getContext('2d');
+  const ctx = editImageCanvas.getContext('2d', { willReadFrequently: true });
   const brightness = editBrightness.value;
   const contrast = editContrast.value;
   const saturation = editSaturation.value;
@@ -297,9 +297,13 @@ function applyEditFilters() {
 
   ctx.putImageData(imageData, 0, 0);
 
+  // Note: CSS filter needs to stay as inline style as it's dynamic
+  // We'll need to update CSP to allow inline styles or use data attributes
   if (blur > 0) {
+    editImageCanvas.setAttribute('data-blur', blur);
     editImageCanvas.style.filter = `blur(${blur}px)`;
   } else {
+    editImageCanvas.removeAttribute('data-blur');
     editImageCanvas.style.filter = 'none';
   }
 }
@@ -316,10 +320,11 @@ function resetEditFilters() {
   editBlurValue.textContent = '0px';
   
   if (editCurrentImage && editImageCanvas.classList.contains('active')) {
-    const ctx = editImageCanvas.getContext('2d');
+    const ctx = editImageCanvas.getContext('2d', { willReadFrequently: true });
     ctx.clearRect(0, 0, editImageCanvas.width, editImageCanvas.height);
     const imageToDraw = (editOriginalImage && editOriginalImage.complete) ? editOriginalImage : editCurrentImage;
     ctx.drawImage(imageToDraw, 0, 0, editImageCanvas.width, editImageCanvas.height);
+    editImageCanvas.removeAttribute('data-blur');
     editImageCanvas.style.filter = 'none';
   }
 }
@@ -462,8 +467,8 @@ fromFormat.addEventListener('change', () => {
   }
   // Reset file selection when format changes
   conversionFileInput.value = '';
-  conversionPreview.style.display = 'none';
-  conversionUploadArea.querySelector('.upload-placeholder').style.display = 'flex';
+  conversionPreview.classList.add('hidden');
+  conversionUploadArea.querySelector('.upload-placeholder').classList.remove('hidden');
   conversionCurrentFile = null;
 });
 
@@ -509,8 +514,8 @@ function handleConversionFile(file) {
   conversionFileSize.textContent = formatFileSize(file.size);
   
   // Show preview
-  conversionUploadArea.querySelector('.upload-placeholder').style.display = 'none';
-  conversionPreview.style.display = 'block';
+  conversionUploadArea.querySelector('.upload-placeholder').classList.add('hidden');
+  conversionPreview.classList.remove('hidden');
   
   // Auto-convert if both formats are selected
   if (fromFormat.value && toFormat.value) {
@@ -536,9 +541,9 @@ function startConversion() {
     return;
   }
   
-  conversionPreview.style.display = 'none';
-  conversionProgress.style.display = 'block';
-  conversionResult.style.display = 'none';
+  conversionPreview.classList.add('hidden');
+  conversionProgress.classList.remove('hidden');
+  conversionResult.classList.add('hidden');
   
   // Simulate conversion process
   let progress = 0;
@@ -558,8 +563,8 @@ function startConversion() {
 }
 
 function simulateConversion() {
-  conversionProgress.style.display = 'none';
-  conversionResult.style.display = 'block';
+  conversionProgress.classList.add('hidden');
+  conversionResult.classList.remove('hidden');
   
   // Create a blob from the file (in production, this would be the converted file)
   const reader = new FileReader();
@@ -596,9 +601,9 @@ conversionDownloadBtn.addEventListener('click', () => {
 });
 
 conversionTryAgainBtn.addEventListener('click', () => {
-  conversionResult.style.display = 'none';
-  conversionPreview.style.display = 'none';
-  conversionUploadArea.querySelector('.upload-placeholder').style.display = 'flex';
+  conversionResult.classList.add('hidden');
+  conversionPreview.classList.add('hidden');
+  conversionUploadArea.querySelector('.upload-placeholder').classList.remove('hidden');
   conversionCurrentFile = null;
   conversionResultBlob = null;
   conversionFileInput.value = '';
@@ -665,7 +670,7 @@ function downloadImage(imageSrc, filename) {
     const canvas = document.createElement('canvas');
     canvas.width = img.width;
     canvas.height = img.height;
-    const ctx = canvas.getContext('2d');
+    const ctx = canvas.getContext('2d', { willReadFrequently: true });
     ctx.drawImage(img, 0, 0);
     canvas.toBlob((blob) => {
       const url = URL.createObjectURL(blob);

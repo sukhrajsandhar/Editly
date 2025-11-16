@@ -67,14 +67,14 @@
 
     <div class="subpage-content">
       <div class="upload-area" id="bgUploadArea">
-        <input type="file" id="bgFileInput" accept="image/*" style="display: none;">
+        <input type="file" id="bgFileInput" accept="image/*" class="hidden">
         <div class="upload-placeholder">
           <i class="fas fa-cloud-upload-alt upload-icon"></i>
           <h3>Drop your image here</h3>
           <p>or click to browse</p>
           <button class="upload-btn-primary" id="bgUploadBtn">Choose File</button>
         </div>
-        <div class="upload-preview" id="bgPreview" style="display: none;">
+        <div class="upload-preview hidden" id="bgPreview">
           <img id="bgPreviewImage" alt="Preview">
           <div class="upload-overlay">
             <button class="btn-icon-action" id="bgRemoveBtn">
@@ -87,14 +87,14 @@
         </div>
       </div>
 
-      <div class="progress-container" id="bgProgress" style="display: none;">
+      <div class="progress-container hidden" id="bgProgress">
         <div class="progress-bar">
           <div class="progress-fill" id="bgProgressFill"></div>
         </div>
         <p class="progress-text">Processing...</p>
       </div>
 
-      <div class="result-container" id="bgResult" style="display: none;">
+      <div class="result-container hidden" id="bgResult">
         <div class="result-preview">
           <img id="bgResultImage" alt="Result">
         </div>
@@ -135,14 +135,14 @@
       </div>
 
       <div class="upload-section">
-        <input type="file" id="editFileInput" accept="image/*" style="display: none;">
+        <input type="file" id="editFileInput" accept="image/*" class="hidden">
         <button class="btn-primary" id="editUploadBtn">
           <i class="fas fa-upload"></i>
           Upload Image
         </button>
       </div>
 
-      <div class="edit-controls-panel" id="editControlsPanel" style="display: none;">
+      <div class="edit-controls-panel hidden" id="editControlsPanel">
         <div class="control-item">
           <div class="control-header">
             <label for="editBrightness">Brightness</label>
@@ -268,14 +268,14 @@
       </div>
 
       <div class="upload-area" id="conversionUploadArea">
-        <input type="file" id="conversionFileInput" style="display: none;">
+        <input type="file" id="conversionFileInput" class="hidden">
         <div class="upload-placeholder">
           <i class="fas fa-cloud-upload-alt upload-icon"></i>
           <h3>Drop your file here</h3>
           <p>or click to browse</p>
           <button class="upload-btn-primary" id="conversionUploadBtn">Choose File</button>
         </div>
-        <div class="upload-preview" id="conversionPreview" style="display: none;">
+        <div class="upload-preview hidden" id="conversionPreview">
           <div class="file-info">
             <i class="fas fa-file" id="conversionFileIcon"></i>
             <div class="file-details">
@@ -286,14 +286,14 @@
         </div>
       </div>
 
-      <div class="progress-container" id="conversionProgress" style="display: none;">
+      <div class="progress-container hidden" id="conversionProgress">
         <div class="progress-bar">
           <div class="progress-fill" id="conversionProgressFill"></div>
         </div>
         <p class="progress-text">Converting...</p>
       </div>
 
-      <div class="result-container" id="conversionResult" style="display: none;">
+      <div class="result-container hidden" id="conversionResult">
         <div class="result-info">
           <i class="fas fa-check-circle success-icon"></i>
           <p>File converted successfully!</p>

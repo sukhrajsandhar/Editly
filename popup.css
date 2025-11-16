@@ -771,9 +771,21 @@ body {
   color: var(--text-primary);
 }
 
-/* Hide file inputs */
+/* Hide file inputs and utility classes */
 input[type="file"] {
   display: none !important;
+}
+
+.hidden {
+  display: none !important;
+}
+
+.visible {
+  display: block !important;
+}
+
+.flex-visible {
+  display: flex !important;
 }
 
 /* Smooth transitions */
